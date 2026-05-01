@@ -14,6 +14,7 @@ public class Pedido {
     private Long id;
 
     private LocalDateTime fecha = LocalDateTime.now();
+    private String nombreCliente;
     private String dniCliente; 
     private Boolean esConadis;
     private Double montoTotal;

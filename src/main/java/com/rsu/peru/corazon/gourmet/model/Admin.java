@@ -1,14 +1,22 @@
 package com.rsu.peru.corazon.gourmet.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 @Entity
 @Table(name = "administradores")
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class Admin extends Usuario {
-
+@NoArgsConstructor
+@AllArgsConstructor
+public class Admin {
+    @Id
+    @Column(length = 8)
+    private String dni;
+    
+    private String nombre;
+    private String password;
+    
+    @Enumerated(EnumType.STRING)
+    private Rol rol;
 }

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas | Corazón Gourmet</title>
+    <link rel="icon" type="image/png" th:href="@{/img/logo.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <script th:src="@{/javascript/ventas.js}" defer></script>
+    <style>
+        .ventas-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .category-section { margin-bottom: 40px; }
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            text-transform: capitalize;
+        }
+        .card-img-container {
+            width: 100%;
+            height: 130px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            background: #1e293b;
+        }
+        .card-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .cart-panel {
+            background: var(--bg-panel);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        .cart-items-list {
+            margin: 15px 0;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .total-box {
+            border-top: 2px dashed var(--border);
+            margin-top: 15px;
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .field-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-page);
+            color: white;
+        }
+        .btn-remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        
+        <aside class="sidebar-nav">
+            <div class="nav-brand">
+                <img th:src="@{/img/logo.png}" alt="Corazón Gourmet">
+            </div>
+            <nav class="nav-menu">
+                
+                <a th:href="@{/mesero/ventas}" class="nav-item active">Nueva Venta</a>
+            </nav>
+        </aside>
+
+        <main class="main-viewport">
+            <header class="viewport-header">
+                <h1>Panel de Ventas</h1>
+                <p>Agrega productos sin recargar la página.</p>
+            </header>
+
+            <div class="ventas-layout">
+           
+                <div class="menu-sections">
+                    <section th:each="cat : ${T(com.rsu.peru.corazon.gourmet.model.Categoria).values()}" class="category-section">
+                        <h2 class="category-title" th:text="${cat.name().replace('_', ' ')}"></h2>
+                        <div class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                            <div th:each="plato : ${listaMenu}" th:if="${plato.categoria == cat}" class="stat-card">
+                                <div class="card-img-container">
+                                    <img th:src="@{'/img/' + ${plato.nombreItem.toLowerCase().replace(' ', '_').replace('í','i').replace('á','a').replace('é','e').replace('ó','o').replace('ú','u')} + '.jpg'}" onerror="this.src='/img/lomo.jpg';">
+                                </div>
+                                <h2 th:text="${plato.nombreItem}" style="font-size: 1rem; margin: 5px 0; min-height: 2.4em;"></h2>
+                                <p style="font-weight: bold; color: var(--primary); margin-bottom: 10px;" th:text="'S/ ' + ${plato.precioNormal}"></p>
+
+                                <button type="button" class="btn-submit" style="width: 100%; padding: 10px;" 
+                                        th:onclick="|gestionarCarrito('/mesero/carrito/agregar', 'id', ${plato.id})|"
+                                        th:disabled="${plato.stockDisponible <= 0}">
+                                    + Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+               
+                <aside class="cart-panel">
+                    <div id="cart-panel-content">
+                        <h2 style="font-size: 1.2rem; margin-bottom: 5px;">Pedido Actual</h2>
+                        <div class="cart-items-list">
+                            <p th:if="${#lists.isEmpty(itemsCarrito)}" style="color: var(--text-muted); text-align: center; padding: 40px 20px;">
+                                El carrito está vacío
+                            </p>
+                            <div th:each="item, iter : ${itemsCarrito}" class="cart-item">
+                                <div style="flex-grow: 1;">
+                                    <span th:text="${item.nombre}" style="display: block; font-weight: 600; font-size: 0.9rem;"></span>
+                                    <small th:text="'S/ ' + (${item.esConadis} ? ${item.precioConadis} : ${item.precioNormal})" style="color: var(--primary)"></small>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox" th:checked="${item.esConadis}" 
+                                           th:if="${item.categoria == 'MENU_ECONOMICO' or item.categoria == 'MENU_ESPECIAL'}"
+                                           th:onchange="|gestionarCarrito('/mesero/carrito/conadis-item', 'index', ${iter.index})|"
+                                           style="cursor:pointer;">
+
+                                    <button type="button" class="btn-remove" 
+                                            th:onclick="|gestionarCarrito('/mesero/carrito/eliminar', 'index', ${iter.index})|">×</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="total-box">
+                            <span style="font-size: 0.85rem; font-weight: 600;">TOTAL</span>
+                            <h3 style="font-size: 1.8rem; color: var(--primary); margin: 0;" 
+                                th:text="'S/ ' + ${#numbers.formatDecimal(total, 1, 2)}"></h3>
+                        </div>
+
+                        <form th:action="@{/mesero/guardar-venta-grupal}" method="post" target="_blank" onsubmit="setTimeout(() => { window.location.reload(); }, 1000)">
+                            <div style="border-top: 1px solid var(--border); padding-top: 15px; margin-top: 15px;">
+                                <label style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; display: block;">DATOS DEL CLIENTE</label>
+                                <input type="text" name="clienteNombre" placeholder="Nombre completo" class="field-input" required>
+                                <input type="text" name="clienteDni" placeholder="DNI (8 dígitos)" class="field-input" maxlength="8" pattern="\d{8}" required>
+                            </div>
+                            <button type="submit" class="btn-submit" style="width: 100%; padding: 15px; margin-top: 15px;" th:disabled="${#lists.isEmpty(itemsCarrito)}">
+                                GENERAR BOLETA
+                            </button>
+                        </form>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

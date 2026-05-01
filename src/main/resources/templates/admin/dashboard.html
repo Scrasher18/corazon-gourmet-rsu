@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Corazón Gourmet</title>
+    <link rel="icon" type="image/png" th:href="@{/img/logo.png}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <aside class="sidebar-nav">
+            <div class="nav-brand">
+                <img th:src="@{/img/logo.png}" alt="Logo">
+            </div>
+            <nav class="nav-menu">
+                <a th:href="@{/admin/dashboard}" class="nav-item active">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Dashboard
+                </a>
+                <a th:href="@{/admin/historial}" class="nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Historial Ventas
+                </a>
+            </nav>
+            <a th:href="@{/login}" class="nav-item nav-logout">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Cerrar Sesión
+            </a>
+        </aside>
+
+        <main class="main-viewport">
+            <header class="viewport-header">
+                <h1>Bienvenido, Administrador</h1>
+                <p>Resumen operativo de Corazón Gourmet para el día de hoy.</p>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span class="stat-label-small" style="color: var(--primary)">RECAUDACIÓN TOTAL</span>
+                            <div class="stat-value" style="margin: 10px 0;" th:text="'S/ ' + ${#numbers.formatDecimal(totalRecaudado, 1, 2)}">S/ 0.00</div>
+                            <div class="stat-indicator" style="color: var(--success); font-weight: 600;">Ventas acumuladas</div>
+                        </div>
+                        <img th:src="@{/img/Recaudacion.png}" style="width: 45px; height: 45px; object-fit: contain;">
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span class="stat-label-small" style="color: var(--primary)">ÓRDENES HOY</span>
+                            <div class="stat-value" style="margin: 10px 0;" th:text="${#lists.size(pedidos)}">0</div>
+                            <div class="stat-indicator" style="color: var(--text-muted)">Pedidos procesados</div>
+                        </div>
+                        <img th:src="@{/img/hoy.png}" style="width: 45px; height: 45px; object-fit: contain;">
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span class="stat-label-small" style="color: var(--primary)">ESTADO</span>
+                            <div class="stat-value" style="margin: 10px 0; color: var(--success);">Activo</div>
+                            <div class="stat-indicator" style="color: var(--text-muted)">Sincronización OK</div>
+                        </div>
+                        <div style="background: rgba(16, 185, 129, 0.1); padding: 10px; border-radius: 12px;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px;">
+                <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main);">Acciones Rápidas</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 300px)); gap: 20px;">
+                    <a th:href="@{/admin/historial}" style="text-decoration: none;">
+                        <div class="stat-card" style="display: flex; align-items: center; gap: 15px; cursor: pointer; border: 1px solid var(--border); transition: 0.3s;">
+                            <div style="background: var(--accent-light); padding: 12px; border-radius: 12px;">
+                                <img th:src="@{/img/historial.png}" width="30">
+                            </div>
+                            <div style="text-align: left;">
+                                <div style="font-weight: 700; color: var(--text-main);">Ver Historial</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Revisar todas las ventas</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(pedidos)}" style="margin-top: 40px; text-align: center; padding: 50px; background: rgba(30, 41, 59, 0.3); border-radius: 20px; border: 1px dashed var(--border);">
+                <img th:src="@{/img/0ventas.png}" style="width: 80px; opacity: 0.6; margin-bottom: 15px;">
+                <p style="color: var(--text-muted); font-weight: 500;">No hay movimientos registrados hoy.</p>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
