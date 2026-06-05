@@ -1,9 +1,10 @@
 package com.rsu.peru.corazon.gourmet.model;
 
 public enum Categoria {
+    PLATO_FONDO,
+    PLATO_ESPECIAL,
     ENTRADA,
-    MENU_ECONOMICO,
-    MENU_ESPECIAL,
-    BEBIDA,           
+    BEBIDA,
+    BEBIDA_EXTRA,
     POSTRE_ADICIONAL
 }

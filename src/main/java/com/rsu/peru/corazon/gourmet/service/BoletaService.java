@@ -1,98 +1,116 @@
 package com.rsu.peru.corazon.gourmet.service;
 
 import com.lowagie.text.*;
-import com.lowagie.text.pdf.*;
-import com.rsu.peru.corazon.gourmet.model.PedidoItem;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import com.rsu.peru.corazon.gourmet.model.Pedido;
+import com.rsu.peru.corazon.gourmet.model.DetallePedido;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.awt.Color;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+
+@Service
 public class BoletaService {
 
-    private List<PedidoItem> carrito;
-    private double total;
-    private String clienteNombre;
-    private String clienteDni;
-
-    public BoletaService(List<PedidoItem> carrito, double total, String clienteNombre, String clienteDni) {
-        this.carrito = carrito;
-        this.total = total;
-        this.clienteNombre = clienteNombre;
-        this.clienteDni = clienteDni;
-    }
-
-    public void export(HttpServletResponse response) throws IOException {
-        Document document = new Document(PageSize.A6, 20, 20, 20, 20);
+    public void export(HttpServletResponse response, Pedido pedido) throws IOException {
+        Document document = new Document(PageSize.A6, 15, 15, 15, 15);
         PdfWriter.getInstance(document, response.getOutputStream());
 
         document.open();
 
-        Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, Color.BLACK);
-        Font fontSubtitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.DARK_GRAY);
-        Font fontBody = FontFactory.getFont(FontFactory.HELVETICA, 9, Color.BLACK);
-        Font fontBold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.BLACK);
-        Font fontTotal = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.BLACK);
+        Font fuenteTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
+        Font fuenteSubtitulo = FontFactory.getFont(FontFactory.HELVETICA, 8);
+        Font fuenteBold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8);
+        Font fuenteNormal = FontFactory.getFont(FontFactory.HELVETICA, 8);
 
-        Paragraph title = new Paragraph("CORAZÓN GOURMET RSU", fontTitle);
-        title.setAlignment(Element.ALIGN_CENTER);
-        document.add(title);
+        Paragraph empresa = new Paragraph("CORAZÓN GOURMET", fuenteTitulo);
+        empresa.setAlignment(Element.ALIGN_CENTER);
+        document.add(empresa);
 
-        Paragraph sub = new Paragraph("Sede Santa Anita - UTP\nTicket de Venta", fontBody);
-        sub.setAlignment(Element.ALIGN_CENTER);
-        document.add(sub);
+        Paragraph ruc = new Paragraph("RUC: 20123456789\nCalle Los Ruiseñores 123 - Santa Anita", fuenteSubtitulo);
+        ruc.setAlignment(Element.ALIGN_CENTER);
+        document.add(ruc);
+        
+        document.add(new Paragraph("--------------------------------------------------", fuenteSubtitulo));
 
-        document.add(new Paragraph("\n---------------------------------------------------------"));
-
-        document.add(new Paragraph("CLIENTE: " + clienteNombre.toUpperCase(), fontBold));
-        document.add(new Paragraph("DNI: " + clienteDni, fontBody));
-        document.add(new Paragraph("FECHA: " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()), fontBody));
-
-        document.add(new Paragraph("---------------------------------------------------------\n"));
-
-        PdfPTable table = new PdfPTable(new float[]{3f, 1f});
-        table.setWidthPercentage(100);
-
-        PdfPCell h1 = new PdfPCell(new Phrase("DESCRIPCIÓN", fontSubtitle));
-        h1.setBorder(Rectangle.BOTTOM);
-        h1.setPaddingBottom(5);
-        table.addCell(h1);
-
-        PdfPCell h2 = new PdfPCell(new Phrase("PRECIO", fontSubtitle));
-        h2.setBorder(Rectangle.BOTTOM);
-        h2.setPaddingBottom(5);
-        h2.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        table.addCell(h2);
-
-        for (PedidoItem item : carrito) {
-            String desc = item.getNombre() + (item.isEsConadis() ? " (CONADIS)" : "");
-            PdfPCell cellDetalle = new PdfPCell(new Phrase(desc, fontBody));
-            cellDetalle.setBorder(Rectangle.NO_BORDER);
-            cellDetalle.setPaddingTop(5);
-            table.addCell(cellDetalle);
-
-            double precioItem = item.isEsConadis() ? item.getPrecioConadis() : item.getPrecioNormal();
-            PdfPCell cellMonto = new PdfPCell(new Phrase("S/ " + String.format("%.2f", precioItem), fontBody));
-            cellMonto.setBorder(Rectangle.NO_BORDER);
-            cellMonto.setPaddingTop(5);
-            cellMonto.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table.addCell(cellMonto);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        document.add(new Paragraph("BOLETA ELECTRÓNICA: T001-" + pedido.getId(), fuenteBold));
+        document.add(new Paragraph("Fecha: " + pedido.getFecha().format(formatter), fuenteNormal));
+        
+        // ¡Añadido! Número de mesa para control de sala
+        document.add(new Paragraph("Mesa N°: " + pedido.getMesa(), fuenteBold));
+    
+        if (pedido.getUsuario() != null) {
+            document.add(new Paragraph("Atendido por: " + pedido.getUsuario().getNombre() + " " + pedido.getUsuario().getApellido(), fuenteNormal));
+        }
+        
+        if (pedido.getNombreCliente() != null && !pedido.getNombreCliente().isEmpty()) {
+            document.add(new Paragraph("Cliente: " + pedido.getNombreCliente(), fuenteNormal));
+            document.add(new Paragraph("DNI: " + pedido.getDniCliente(), fuenteNormal));
+        } else {
+            document.add(new Paragraph("Cliente: PÚBLICO GENERAL", fuenteNormal));
+        }
+        
+        if (pedido.getEsConadis() != null && pedido.getEsConadis()) {
+            document.add(new Paragraph("Tipo de Tarifa: CONADIS (Descuento Aplicado)", fuenteBold));
         }
 
-        document.add(table);
+        document.add(new Paragraph("--------------------------------------------------", fuenteSubtitulo));
 
-        document.add(new Paragraph("\n---------------------------------------------------------"));
+        PdfPTable tabla = new PdfPTable(4);
+        tabla.setWidthPercentage(100);
+        tabla.setWidths(new float[]{45f, 15f, 20f, 20f}); 
 
-        Paragraph pTotal = new Paragraph("TOTAL PAGADO: S/ " + String.format("%.2f", total), fontTotal);
-        pTotal.setAlignment(Element.ALIGN_RIGHT);
-        document.add(pTotal);
+        tabla.addCell(crearCelda("Producto", fuenteBold, Element.ALIGN_LEFT, false));
+        tabla.addCell(crearCelda("Cant.", fuenteBold, Element.ALIGN_CENTER, false));
+        tabla.addCell(crearCelda("P. Unit", fuenteBold, Element.ALIGN_RIGHT, false));
+        tabla.addCell(crearCelda("Subt.", fuenteBold, Element.ALIGN_RIGHT, false));
 
-        Paragraph footer = new Paragraph("\n¡Gracias por su consumo!", fontBody);
-        footer.setAlignment(Element.ALIGN_CENTER);
-        document.add(footer);
+        for (DetallePedido detalle : pedido.getDetalles()) {
+            String nombreMostrar = detalle.getMenu().getNombreItem();
+            if (detalle.getEntradaSeleccionada() != null && !detalle.getEntradaSeleccionada().isEmpty() 
+                && detalle.getBebidaSeleccionada() != null && !detalle.getBebidaSeleccionada().isEmpty()) {
+                nombreMostrar += " (" + detalle.getEntradaSeleccionada() + " / " + detalle.getBebidaSeleccionada() + ")";
+            }
+
+            tabla.addCell(crearCelda(nombreMostrar, fuenteNormal, Element.ALIGN_LEFT, true));
+            tabla.addCell(crearCelda(String.valueOf(detalle.getCantidad()), fuenteNormal, Element.ALIGN_CENTER, true));
+            tabla.addCell(crearCelda("S/ " + String.format("%.2f", detalle.getPrecioUnitario()), fuenteNormal, Element.ALIGN_RIGHT, true));
+            tabla.addCell(crearCelda("S/ " + String.format("%.2f", detalle.getSubtotal()), fuenteNormal, Element.ALIGN_RIGHT, true));
+        }
+
+        document.add(tabla);
+        document.add(new Paragraph("--------------------------------------------------", fuenteSubtitulo));
+
+        if (pedido.getMetodoPago() != null) {
+            Paragraph pago = new Paragraph("Forma de Pago: " + pedido.getMetodoPago(), fuenteNormal);
+            pago.setAlignment(Element.ALIGN_LEFT);
+            document.add(pago);
+        }
+
+        Paragraph total = new Paragraph("TOTAL A PAGAR: S/ " + String.format("%.2f", pedido.getMontoTotal()), fuenteTitulo);
+        total.setAlignment(Element.ALIGN_RIGHT);
+        document.add(total);
+
+        document.add(new Chunk("\n"));
+        Paragraph agradecimiento = new Paragraph("¡Gracias por su preferencia!\nCorazón Gourmet - RSU UTP", fuenteSubtitulo);
+        agradecimiento.setAlignment(Element.ALIGN_CENTER);
+        document.add(agradecimiento);
 
         document.close();
+    }
+
+    private PdfPCell crearCelda(String texto, Font fuente, int alineacion, boolean quitarBordes) {
+        PdfPCell celda = new PdfPCell(new Phrase(texto, fuente));
+        celda.setHorizontalAlignment(alineacion);
+        celda.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        celda.setPadding(3);
+        if (quitarBordes) {
+            celda.setBorder(PdfPCell.NO_BORDER);
+        }
+        return celda;
     }
 }

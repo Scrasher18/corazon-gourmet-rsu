@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class Menu {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,7 +17,9 @@ public class Menu {
     private String nombreItem;
     private Double precioNormal;
     private Double precioConadis;
-    private Integer stockDisponible;
+    
+    @Column(nullable = false)
+    private Integer stockDisponible = 1; 
 
     @Enumerated(EnumType.STRING)
     private Categoria categoria;
