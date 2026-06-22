@@ -37,6 +37,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             String rolFinal = "ROLE_" + usuario.getRol().name();
             
             return new User(
+                           
                     usuario.getDni(), 
                     usuario.getPassword(),
                     Collections.singletonList(new SimpleGrantedAuthority(rolFinal))

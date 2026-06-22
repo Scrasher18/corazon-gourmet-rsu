@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
+
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
@@ -38,10 +38,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            
+
             try {
                 String username = jwtUtils.getUsernameFromToken(token);
-
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -49,25 +48,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        
-                        // 🚀 ¡AUDITORÍA AÑADIDA! Imprime directo en la consola de Spring Boot
-                        System.out.println("\n========== [AUDITORÍA JWT DETECTADA] ==========");
-                        System.out.println("🔗 URL Solicitada: " + request.getRequestURI());
-                        System.out.println("👤 Usuario Extraído: " + username);
-                        System.out.println("🎖️ Autoridades en Spring: " + userDetails.getAuthorities());
-                        System.out.println("================================================\n");
-                        
+
                         SecurityContextHolder.getContext().setAuthentication(authToken);
-                    } else {
-                        System.out.println("⚠️ [ALERTA JWT]: El token no pasó la validación de validateToken().");
-                    }
+                    } 
                 }
             } catch (Exception e) {
                 logger.error("No se pudo establecer la autenticación del usuario por JWT: " + e.getMessage());
             }
-        } else if (request.getRequestURI().contains("/api/usuarios")) {
-            System.out.println("⚠️ [ALERTA HTTP]: Se intentó ingresar a /api/usuarios pero el 'Authorization' Header llegó NULO o sin 'Bearer '");
-        }
+        } 
 
         filterChain.doFilter(request, response);
     }

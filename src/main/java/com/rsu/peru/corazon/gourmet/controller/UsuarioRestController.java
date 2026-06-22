@@ -1,18 +1,18 @@
 package com.rsu.peru.corazon.gourmet.controller;
 
+import com.rsu.peru.corazon.gourmet.dto.PasswordChangeDTO;
 import com.rsu.peru.corazon.gourmet.model.Usuario;
 import com.rsu.peru.corazon.gourmet.model.Rol;
 import com.rsu.peru.corazon.gourmet.service.UsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/usuarios")
-
 public class UsuarioRestController {
 
     private final UsuarioService usuarioService;
@@ -34,7 +34,6 @@ public class UsuarioRestController {
     @GetMapping("/rol/{rol}")
     public ResponseEntity<List<Usuario>> listarPorRol(@PathVariable String rol) {
         try {
- 
             Rol rolEnum = Rol.valueOf(rol.toUpperCase().trim());
             return ResponseEntity.ok(usuarioService.listarPorRol(rolEnum));
         } catch (IllegalArgumentException e) {
@@ -81,6 +80,17 @@ public class UsuarioRestController {
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/cambiar-password")
+    public ResponseEntity<?> cambiarPassword(@RequestBody PasswordChangeDTO dto) {
+        try {
+            usuarioService.cambiarPassword(dto);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Contraseña actualizada correctamente"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("message", e.getMessage()));
         }
     }
 }

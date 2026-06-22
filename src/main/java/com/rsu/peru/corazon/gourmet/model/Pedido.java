@@ -19,25 +19,25 @@ public class Pedido {
     
     @Column(length = 20)
     private String estado = "ABIERTA"; 
-    
 
     @Column(length = 30)
     private String metodoPago; 
 
     private LocalDateTime fecha = LocalDateTime.now();
-    private String nombreCliente;
-    private String dniCliente;
-    private Boolean esConadis = false;
     private Double montoTotal = 0.0;
     
-    private Integer cantidadMenu = 0;      
+    private Integer cantidadMenu = 0;       
     private Integer cantidadEspecial = 0;  
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<DetallePedido> detalles;
 
     @ManyToOne
     @JoinColumn(name = "usuario_dni", referencedColumnName = "dni")
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<DetallePedido> detalles;
+    @ManyToOne
+    @JoinColumn(name = "cajero_dni", referencedColumnName = "dni")
+    private Usuario cajero;
 }

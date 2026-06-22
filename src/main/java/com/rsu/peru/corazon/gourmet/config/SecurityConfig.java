@@ -41,17 +41,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-                
+                .requestMatchers("/error").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/usuarios/cambiar-password").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/menus", "/api/menus/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/pedidos", "/api/pedidos/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/ventas", "/api/ventas/**").authenticated()
-                
+                .requestMatchers(HttpMethod.PUT, "/api/pedidos/cerrar-mesa/**").hasAnyAuthority("CAJA", "ROLE_CAJA","ROLE_ADMINISTRADOR","ADMINISTRADOR")
+                .requestMatchers("/api/caja/**").hasAnyAuthority("CAJA", "ROLE_CAJA", "ADMINISTRADOR", "ROLE_ADMINISTRADOR")
                 .requestMatchers("/api/menus", "/api/menus/**").hasAnyAuthority("ADMINISTRADOR", "ROLE_ADMINISTRADOR")
                 .requestMatchers("/api/pedidos", "/api/pedidos/**").hasAnyAuthority("MESERO", "ROLE_MESERO", "ADMINISTRADOR", "ROLE_ADMINISTRADOR")
                 .requestMatchers("/api/ventas", "/api/ventas/**").hasAnyAuthority("CAJA", "ROLE_CAJA", "ADMINISTRADOR", "ROLE_ADMINISTRADOR")
                 .requestMatchers("/api/dashboard", "/api/dashboard/**").hasAnyAuthority("ADMINISTRADOR", "ROLE_ADMINISTRADOR")
                 .requestMatchers("/api/usuarios", "/api/usuarios/**").hasAnyAuthority("ADMINISTRADOR", "ROLE_ADMINISTRADOR")
-                
+                .requestMatchers("/api/caja", "/api/caja/**").hasAnyAuthority("CAJA", "ROLE_CAJA", "ADMINISTRADOR", "ROLE_ADMINISTRADOR")
                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

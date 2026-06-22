@@ -1,5 +1,6 @@
 package com.rsu.peru.corazon.gourmet.service;
 
+import com.rsu.peru.corazon.gourmet.dto.PasswordChangeDTO;
 import com.rsu.peru.corazon.gourmet.model.Usuario;
 import com.rsu.peru.corazon.gourmet.model.Rol;
 import java.util.List;
@@ -14,4 +15,5 @@ public interface UsuarioService {
     Usuario actualizarUsuario(String dni, Usuario usuarioDetalles);
     void cambiarEstadoActivo(String dni, boolean estado);
     void eliminarUsuario(String dni);
+    void cambiarPassword(PasswordChangeDTO dto);
 }

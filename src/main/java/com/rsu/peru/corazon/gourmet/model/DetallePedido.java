@@ -30,5 +30,4 @@ public class DetallePedido {
 
     private String entradaSeleccionada; 
     private String bebidaSeleccionada; 
-    private String observacion;         
 }

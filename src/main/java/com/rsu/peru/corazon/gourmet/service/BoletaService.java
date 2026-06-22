@@ -30,7 +30,7 @@ public class BoletaService {
         empresa.setAlignment(Element.ALIGN_CENTER);
         document.add(empresa);
 
-        Paragraph ruc = new Paragraph("RUC: 20123456789\nCalle Los Ruiseñores 123 - Santa Anita", fuenteSubtitulo);
+        Paragraph ruc = new Paragraph("RUC: 20123456789\nCalle Los Ruiseñores 123, Lima", fuenteSubtitulo);
         ruc.setAlignment(Element.ALIGN_CENTER);
         document.add(ruc);
         
@@ -40,23 +40,9 @@ public class BoletaService {
         document.add(new Paragraph("BOLETA ELECTRÓNICA: T001-" + pedido.getId(), fuenteBold));
         document.add(new Paragraph("Fecha: " + pedido.getFecha().format(formatter), fuenteNormal));
         
-        // ¡Añadido! Número de mesa para control de sala
         document.add(new Paragraph("Mesa N°: " + pedido.getMesa(), fuenteBold));
-    
-        if (pedido.getUsuario() != null) {
-            document.add(new Paragraph("Atendido por: " + pedido.getUsuario().getNombre() + " " + pedido.getUsuario().getApellido(), fuenteNormal));
-        }
         
-        if (pedido.getNombreCliente() != null && !pedido.getNombreCliente().isEmpty()) {
-            document.add(new Paragraph("Cliente: " + pedido.getNombreCliente(), fuenteNormal));
-            document.add(new Paragraph("DNI: " + pedido.getDniCliente(), fuenteNormal));
-        } else {
-            document.add(new Paragraph("Cliente: PÚBLICO GENERAL", fuenteNormal));
-        }
-        
-        if (pedido.getEsConadis() != null && pedido.getEsConadis()) {
-            document.add(new Paragraph("Tipo de Tarifa: CONADIS (Descuento Aplicado)", fuenteBold));
-        }
+        document.add(new Paragraph("Cliente: PÚBLICO GENERAL", fuenteNormal));
 
         document.add(new Paragraph("--------------------------------------------------", fuenteSubtitulo));
 
@@ -96,7 +82,7 @@ public class BoletaService {
         document.add(total);
 
         document.add(new Chunk("\n"));
-        Paragraph agradecimiento = new Paragraph("¡Gracias por su preferencia!\nCorazón Gourmet - RSU UTP", fuenteSubtitulo);
+        Paragraph agradecimiento = new Paragraph("¡Gracias por su preferencia!\nCorazón Gourmet", fuenteSubtitulo);
         agradecimiento.setAlignment(Element.ALIGN_CENTER);
         document.add(agradecimiento);
 

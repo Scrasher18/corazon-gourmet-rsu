@@ -1,5 +1,6 @@
 package com.rsu.peru.corazon.gourmet.controller;
 
+import com.rsu.peru.corazon.gourmet.dto.VentaAgrupadaDTO;
 import com.rsu.peru.corazon.gourmet.repository.PedidoRepository; 
 import com.rsu.peru.corazon.gourmet.service.UsuarioService;
 import com.rsu.peru.corazon.gourmet.service.MenuService;
@@ -7,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -49,5 +51,16 @@ public class DashboardRestController {
             metricas.put("error", "No se pudieron cargar las métricas del panel de administración.");
             return ResponseEntity.internalServerError().body(metricas);
         }
+    }
+
+    
+    @GetMapping("/grafico-ventas")
+    public ResponseEntity<List<VentaAgrupadaDTO>> obtenerGraficoVentas(@RequestParam(defaultValue = "hoy") String periodo) {
+        if ("mes".equalsIgnoreCase(periodo)) {
+            return ResponseEntity.ok(pedidoRepository.obtenerVentasMes());
+        } else if ("anio".equalsIgnoreCase(periodo)) {
+            return ResponseEntity.ok(pedidoRepository.obtenerVentasAnio());
+        }
+        return ResponseEntity.ok(pedidoRepository.obtenerVentasHoy());
     }
 }

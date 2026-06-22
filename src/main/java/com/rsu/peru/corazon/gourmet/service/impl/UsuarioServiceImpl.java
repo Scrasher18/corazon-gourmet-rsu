@@ -1,5 +1,6 @@
 package com.rsu.peru.corazon.gourmet.service.impl;
 
+import com.rsu.peru.corazon.gourmet.dto.PasswordChangeDTO;
 import com.rsu.peru.corazon.gourmet.model.Usuario;
 import com.rsu.peru.corazon.gourmet.model.Rol;
 import com.rsu.peru.corazon.gourmet.repository.UsuarioRepository;
@@ -64,7 +65,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setApellido(usuarioDetalles.getApellido());
         usuario.setTelefono(usuarioDetalles.getTelefono());
         usuario.setRol(usuarioDetalles.getRol());
-        
+
         if (usuarioDetalles.getPassword() != null && !usuarioDetalles.getPassword().trim().isEmpty()) {
             usuario.setPassword(passwordEncoder.encode(usuarioDetalles.getPassword()));
         }
@@ -87,5 +88,17 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = usuarioRepository.findByDni(dni)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con el DNI: " + dni));
         usuarioRepository.delete(usuario);
+    }
+
+    public void cambiarPassword(PasswordChangeDTO dto) {
+        Usuario usuario = usuarioRepository.findByDni(dto.getDni())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(dto.getPasswordActual(), usuario.getPassword())) {
+            throw new RuntimeException("Contraseña actual incorrecta");
+        }
+
+        usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+        usuarioRepository.save(usuario);
     }
 }
