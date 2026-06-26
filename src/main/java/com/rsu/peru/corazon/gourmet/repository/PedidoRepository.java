@@ -22,38 +22,38 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     List<Pedido> findByEstado(String estado);
 
-    @Query(value = "SELECT CAST(HOUR(fecha - INTERVAL 5 HOUR) AS CHAR) AS etiqueta, SUM(monto_total) AS total "
+    @Query(value = "SELECT CAST(HOUR(fecha) AS CHAR) AS etiqueta, SUM(monto_total) AS total "
             + "FROM pedidos "
-            + "WHERE DATE(fecha - INTERVAL 5 HOUR) = DATE(NOW() - INTERVAL 5 HOUR) "
+            + "WHERE DATE(fecha) = DATE(NOW()) "
             + "AND estado = 'PAGADA' "
-            + "GROUP BY CAST(HOUR(fecha - INTERVAL 5 HOUR) AS CHAR) "
-            + "ORDER BY CAST(HOUR(fecha - INTERVAL 5 HOUR) AS CHAR)", nativeQuery = true)
+            + "GROUP BY CAST(HOUR(fecha) AS CHAR) "
+            + "ORDER BY CAST(HOUR(fecha) AS CHAR)", nativeQuery = true)
     List<VentaAgrupadaDTO> obtenerVentasHoy();
 
-    @Query(value = "SELECT DAY(fecha - INTERVAL 5 HOUR) AS etiqueta, SUM(monto_total) AS total "
+    @Query(value = "SELECT DAY(fecha) AS etiqueta, SUM(monto_total) AS total "
             + "FROM pedidos "
-            + "WHERE MONTH(fecha - INTERVAL 5 HOUR) = MONTH(NOW() - INTERVAL 5 HOUR) "
-            + "AND YEAR(fecha - INTERVAL 5 HOUR) = YEAR(NOW() - INTERVAL 5 HOUR) "
+            + "WHERE MONTH(fecha) = MONTH(NOW()) "
+            + "AND YEAR(fecha) = YEAR(NOW()) "
             + "AND estado = 'PAGADA' "
             + "GROUP BY etiqueta ORDER BY etiqueta", nativeQuery = true)
     List<VentaAgrupadaDTO> obtenerVentasMes();
 
-    @Query(value = "SELECT MONTH(fecha - INTERVAL 5 HOUR) AS etiqueta, SUM(monto_total) AS total "
+    @Query(value = "SELECT MONTH(fecha) AS etiqueta, SUM(monto_total) AS total "
             + "FROM pedidos "
-            + "WHERE YEAR(fecha - INTERVAL 5 HOUR) = YEAR(NOW() - INTERVAL 5 HOUR) "
+            + "WHERE YEAR(fecha) = YEAR(NOW()) "
             + "AND estado = 'PAGADA' "
             + "GROUP BY etiqueta ORDER BY etiqueta", nativeQuery = true)
     List<VentaAgrupadaDTO> obtenerVentasAnio();
 
     @Query(value = "SELECT COALESCE(SUM(monto_total), 0.0) "
             + "FROM pedidos "
-            + "WHERE DATE(fecha - INTERVAL 5 HOUR) = DATE(NOW() - INTERVAL 5 HOUR) "
+            + "WHERE DATE(fecha) = DATE(NOW()) "
             + "AND estado = 'PAGADA'", nativeQuery = true)
     Double sumarRecaudacionHoy();
 
     @Query(value = "SELECT COUNT(*) "
             + "FROM pedidos "
-            + "WHERE DATE(fecha - INTERVAL 5 HOUR) = DATE(NOW() - INTERVAL 5 HOUR) "
+            + "WHERE DATE(fecha) = DATE(NOW()) "
             + "AND estado = 'PAGADA'", nativeQuery = true)
     long countPedidosHoy();
 
